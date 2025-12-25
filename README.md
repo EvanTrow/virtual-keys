@@ -9,7 +9,7 @@ Create login link for [Home Assistant](https://www.home-assistant.io/) that you 
 
 Virtual Keys is a Home Assistant integration that allows you to create login links that can be shared with guests. These links provide access to specific entities in Home Assistant for a limited time.
 
-See [Lovelace Virtual Keys](https://github.com/kcsoft/lovelace-virtual-keys) for a more detailed description.
+See [Virtual Keys](https://github.com/EvanTrow/virtual-keys) for a more detailed description.
 
 ## Installation with HACS
 
@@ -17,7 +17,7 @@ You need to install [HACS](https://hacs.xyz/) first.
 
 1. In HACS, go to Integrations and click on the three dots in the top right corner. Select "Custom repositories".
 
-2. Add `kcsoft/virtual-keys` as the repository and select the category `Integration`.
+2. Add `EvanTrow/virtual-keys` as the repository and select the category `Integration`.
 
 3. Search for "Virtual Keys" and download it.
 

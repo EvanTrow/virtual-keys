@@ -80,6 +80,18 @@ async def list_users(
                     algorithm="HS256",
                 )
 
+                dashboard_path = None
+                kiosk = None
+                # Try to decode client_id as JSON for dashboard_path and kiosk
+                if token.client_id:
+                    try:
+                        import json
+                        meta = json.loads(token.client_id)
+                        dashboard_path = meta.get("dashboard_path")
+                        kiosk = meta.get("kiosk")
+                    except Exception:
+                        pass
+
                 tokens.append({
                     "id": token.id,
                     "name": token.client_name,
@@ -87,7 +99,9 @@ async def list_users(
                     "type": token.token_type,
                     "expiration": expiration_seconds,
                     "remaining": round((token.created_at + timedelta(seconds=expiration_seconds) - now).total_seconds()),
-                    "created_at": token.created_at.isoformat()
+                    "created_at": token.created_at.isoformat(),
+                    "dashboard_path": dashboard_path,
+                    "kiosk": kiosk,
                 })
 
         result.append({
@@ -112,6 +126,8 @@ async def list_users(
         vol.Required("user_id"): str,
         vol.Required("name"): str, # token name
         vol.Required("minutes"): int, # minutes
+        vol.Optional("dashboard_path"): str,
+        vol.Optional("kiosk"): bool,
     }
 )
 @websocket_api.require_admin
@@ -129,11 +145,22 @@ async def create_token(
         return
 
     try:
+        # Store dashboard_path and kiosk in client_id as a JSON string if present
+        meta = {}
+        if "dashboard_path" in msg:
+            meta["dashboard_path"] = msg["dashboard_path"]
+        if "kiosk" in msg:
+            meta["kiosk"] = msg["kiosk"]
+        client_id = None
+        if meta:
+            import json
+            client_id = json.dumps(meta)
         refresh_token = await hass.auth.async_create_refresh_token(
             user,
             client_name=msg.get("name"),
             token_type=TOKEN_TYPE_LONG_LIVED_ACCESS_TOKEN,
             access_token_expiration=timedelta(minutes=msg["minutes"]),
+            client_id=client_id,
         )
         access_token = hass.auth.async_create_access_token(refresh_token)
     except ValueError as err:

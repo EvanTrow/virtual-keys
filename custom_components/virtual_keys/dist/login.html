@@ -2,10 +2,26 @@
 <html>
   <body>
     <script type="text/javascript">
-      const hassUrl = window.location.protocol + '//' + window.location.host;
-      const access_token = new URLSearchParams(window.location.search).get('token');
-      localStorage.setItem('hassTokens', JSON.stringify({ access_token: access_token, hassUrl: hassUrl }));
-      window.location.href = hassUrl;
+      const hassUrl = window.location.protocol + "//" + window.location.host;
+      const params = new URLSearchParams(window.location.search);
+      const access_token = params.get("token");
+      const path = params.get("path");
+      const kiosk = params.get("kiosk");
+      localStorage.setItem(
+        "hassTokens",
+        JSON.stringify({ access_token: access_token, hassUrl: hassUrl })
+      );
+      let redirectTo = hassUrl;
+      if (path) {
+        // ensure leading slash
+        const safePath = path.charAt(0) === "/" ? path : "/" + path;
+        redirectTo = hassUrl + safePath;
+      }
+      if (kiosk) {
+        // append kiosk query (preserve existing query if present)
+        redirectTo += (redirectTo.indexOf("?") === -1 ? "?" : "&") + "kiosk";
+      }
+      window.location.href = redirectTo;
     </script>
   </body>
 </html>
